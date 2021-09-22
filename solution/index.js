@@ -1,16 +1,22 @@
-const newTaskButt = document.getElementById("submit-add-to-do");
-const inProgressButt = document.getElementById("submit-add-in-progress");
-const doneTasksButt = document.getElementById("submit-add-done");
 
+//Recieves the list id which the task should be created in, and creates the task.
 function addTask(listId) {
-    const text = document.getElementById(listId).nextElementSibling.textContent; //The next sibling to the list- the input
+    let text;
+    //Finds the task's text by finding the input element of the section and taking its value.
+    for (let child of document.getElementById(listId).parentElement.children) {
+        if (child.tagName === "INPUT") {
+            text = child.value;
+            child.value="";
+        }
+    }
     const id = createTaskId();
-    const taskObj = { type: "li", attributes: { id: id, localStorage: text, parentId: listId }, classes: [] }
+    const taskObj = { type: "li", attributes: { id: id, "data-text": text, "data-parentId": listId }, classes: [] }
 
     localStorage.setItem("task" + id, JSON.stringify({ taskObj }));
     generateTasks();
 }
 
+//Recieves an object containing the element type, attributes, and classes, and makes an html element from it.
 function createElementFromObject(obj) {
     const el = document.createElement(`${obj.type}`);
     for (const cls of obj.classes) {
@@ -19,23 +25,31 @@ function createElementFromObject(obj) {
     for (const attr in obj.attributes) {
         el.setAttribute(attr, obj.attributes[attr]);
     }
-
     return el;
 }
 
+//Creates a new unique id for the task
 function createTaskId() {
     if (localStorage.length === 0) {
         return 1;
     }
-    return JSON.parse(localStorage.getItem("task" + localStorage.length - 1)).id + 1;
+    return localStorage.length + 1;
 }
 
+//generates all the tasks by appending their li element to the corresponding ul element.
 function generateTasks() {
+    //First, resets all the ul elements to prevent duplication
+    document.getElementById("to-do-tasks").textContent="";
+    document.getElementById("in-progress-tasks").textContent="";
+    document.getElementById("done-tasks").textContent="";
+    //Goes through localStorage, creates the li elements, and appends it to the right ul.
     for (let i = 1; i <= localStorage.length; i++) {
-        //Bug- custom element attributes are not working- possible fix with data attr
         const el = createElementFromObject(JSON.parse(localStorage.getItem("task" + i)).taskObj);
-        const parent = document.getElementById(el.parentId);
+        el.textContent = el.getAttribute("data-text");
+        const parent = document.getElementById(el.getAttribute("data-parentId"));
+
         parent.append(el);
     }
 }
+
 generateTasks();
