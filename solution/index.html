@@ -7,28 +7,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="./index.js" defer></script>
     <link rel="stylesheet" href="./styles.css" />
-    <title>Tasks manager</title>
-    <h1>Kanban</h1>
+    <title id="page-title">Tasks manager</title>
+    <heading title="Kanban">Kanban</heading>
+    <link rel="stylesheet" href="solution\styles.css">
+    <script src="solution\index.js"></script>
 </head>
 
 <body>
-    <input type="text" placeholder="Search Tasks">
-    <section>
+    <input type="text" placeholder="Search Tasks"> <br> <br>
+    <section class="sections">
         <ul id="to-do-tasks">
         </ul>
         <input type="text" id="add-to-do-task">
-        <button id="submit-add-to-do">Add Task</button>
+        <button id="submit-add-to-do" onclick="addTask('to-do-tasks')">Add Task</button>
     </section>
-    <section>
+    <section class="sections">
         <ul id="in-progress-tasks">
         </ul>
         <input type="text" id="add-in-progress-task">
-        <button id="submit-add-in-progress">Add Task</button>
+        <button id="submit-add-in-progress" onclick="addTask('in-progress-tasks')">Add Task</button>
     </section>
-    <section>
+    <section class=" sections">
         <ul id="done-tasks"></ul>
         <input type="text" id="add-done-task">
-        <button id="submit-add-done">Add Task</button>
+        <button id="submit-add-done" onclick="addTask('done-task')">Add
+            Task</button>
     </section>
 </body>
 

@@ -1,0 +1,10 @@
+.sections{
+    display:inline-block;
+    width: 20em;
+    height: 15em;
+    border-style: solid;
+    
+}
+body{
+    text-align: center;
+}

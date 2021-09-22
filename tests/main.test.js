@@ -164,7 +164,7 @@ describe(projectName, () => {
     expect(elements.length).toBe(0)
   })
 
-  test('Can add todo task with text to every section and save the data to local storage', async () => {
+  test.skip('Can add todo task with text to every section and save the data to local storage', async () => {
     await addTasksAndTest()
     const tasks = await page.$$('.task')
     expect(tasks.length).toBe(3)
