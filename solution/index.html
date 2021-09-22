@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -7,7 +8,28 @@
     <script src="./index.js" defer></script>
     <link rel="stylesheet" href="./styles.css" />
     <title>Tasks manager</title>
+    <h1>Kanban</h1>
 </head>
+
 <body>
+    <input type="text" placeholder="Search Tasks">
+    <section>
+        <ul id="to-do-tasks">
+        </ul>
+        <input type="text" id="add-to-do-task">
+        <button id="submit-add-to-do">Add Task</button>
+    </section>
+    <section>
+        <ul id="in-progress-tasks">
+        </ul>
+        <input type="text" id="add-in-progress-task">
+        <button id="submit-add-in-progress">Add Task</button>
+    </section>
+    <section>
+        <ul id="done-tasks"></ul>
+        <input type="text" id="add-done-task">
+        <button id="submit-add-done">Add Task</button>
+    </section>
 </body>
+
 </html>
