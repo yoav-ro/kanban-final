@@ -10,4 +10,5 @@ body{
 }
 .task{
     text-align: center;
+    border-style:dotted ;
 }

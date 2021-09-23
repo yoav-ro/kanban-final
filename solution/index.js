@@ -24,10 +24,6 @@ function addTask(listId) {
     generateTasks();
 }
 
-function addToLocalStorage() {
-
-}
-
 //Recieves an object containing the element type, attributes, and classes, and makes an html element from it.
 function createElementFromObject(obj) {
     const el = document.createElement(`${obj.type}`);
@@ -38,10 +34,6 @@ function createElementFromObject(obj) {
         el.setAttribute(attr, obj.attributes[attr]);
     }
     return el;
-}
-
-function createTaskId(tasks) {
-    return tasks.todo.length + tasks['in-progress'].length + tasks.done.length + 1;
 }
 
 //generates all the tasks by appending their li element to the corresponding ul element.
@@ -60,23 +52,62 @@ function generateTasks() {
     document.getElementById("in-progress").textContent = "";
     document.getElementById("done").textContent = "";
     //Goes through localStorage, creates the li elements, and appends it to the right ul.
-    appendTask(tasks, "todo");
-    appendTask(tasks, "in-progress");
-    appendTask(tasks, "done");
+    appendTask(tasks, ["todo", "in-progress", "done"]);
 }
 
-function appendTask(tasks, taskList) {
-    if (tasks[taskList].length > 0) {
-        for (let i = 0; i < tasks[taskList].length; i++) {
-            const id = createTaskId(tasks);
-            const taskObj = { type: "li", attributes: { id: id }, classes: ["task"] }
-            const el = createElementFromObject(taskObj);
-            el.textContent = tasks[taskList][i];
-            const parent = document.getElementById(taskList);
+//Appends all tasks as li elements to the ul lists.
+function appendTask(tasks, listsIdArr) {
+    let countForIds = 1;
+    for (let j = 0; j < listsIdArr.length; j++) {
+        if (tasks[listsIdArr[j]].length > 0) {
+            for (let i = 0; i < tasks[listsIdArr[j]].length; i++) {
+                const taskObj = { type: "li", attributes: { id: "task" + countForIds }, classes: ["task"] }
+                const el = createElementFromObject(taskObj);
+                el.textContent = tasks[listsIdArr[j]][i];
+                const parent = document.getElementById(listsIdArr[j]);
 
-            parent.append(el);
+                parent.append(el);
+                countForIds++;
+            }
         }
     }
 }
 
-generateTasks();
+//Hover event, checks if alt + 1/2/3 are pressed, then moves the hovered task.
+function taskHovered(event) {
+    const taskType = event.target.parentElement.id; //The original list id, so we know where to move from.
+    if (event.target.tagName === "LI") { //Make sure the hovered element is li.
+        document.addEventListener("keydown", (e) => {
+            if (e.altKey) {
+                if (e.key === "1") {
+                    moveTask(event.target, "todo", taskType);
+                }
+                if (e.key === "2") {
+                    moveTask(event.target, "in-progress", taskType);
+                }
+                if (e.key === "3") {
+                    moveTask(event.target, "done", taskType);
+                }
+            }
+        })
+    }
+}
+
+//Moves task 'task' from 'moveFrom' list to 'moveTo' list.
+function moveTask(task, moveTo, moveFrom) {
+    console.log(`Moving ${task} from ${moveFrom} to ${moveTo}!`)
+    const tasks = JSON.parse(localStorage.getItem("tasks"));
+    console.log(tasks[`${moveFrom}`]);
+    tasks[`${moveFrom}`].splice(tasks[`${moveFrom}`].findIndex(a => a === task.textContent), 1);
+    tasks[`${moveTo}`].push(task.textContent);
+    console.log(tasks)
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+    console.log(localStorage)
+    generateTasks();
+}
+
+function generatePage() {
+    document.body.addEventListener("mouseover", taskHovered)
+    generateTasks();
+}
+generatePage();
