@@ -39,13 +39,14 @@ function createTaskId() {
 //generates all the tasks by appending their li element to the corresponding ul element.
 function generateTasks() {
     //First, resets all the ul elements to prevent duplication
-    document.getElementById("to-do-tasks").textContent="";
-    document.getElementById("in-progress-tasks").textContent="";
-    document.getElementById("done-tasks").textContent="";
+    document.getElementById("toDoTasks").textContent="";
+    document.getElementById("inProgressTasks").textContent="";
+    document.getElementById("doneTasks").textContent="";
     //Goes through localStorage, creates the li elements, and appends it to the right ul.
     for (let i = 1; i <= localStorage.length; i++) {
         const el = createElementFromObject(JSON.parse(localStorage.getItem("task" + i)).taskObj);
         el.textContent = el.getAttribute("data-text");
+        console.log(el)
         const parent = document.getElementById(el.getAttribute("data-parentId"));
 
         parent.append(el);
