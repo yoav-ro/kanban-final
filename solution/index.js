@@ -10,7 +10,6 @@ function addTask(listId) {
             child.value = "";
         }
     }
-
     if (listId === "todo") {
         tasks.todo.push(text);
     }
@@ -36,6 +35,33 @@ function createElementFromObject(obj) {
     return el;
 }
 
+//Updated the sections to the only the tasks containing the string searched in the search box. Updated per keyStroke. Does not effect localStorage.
+function searchTasks(event) {
+    const tasks = JSON.parse(localStorage.getItem("tasks"));
+    if (event.target.value !== "") {
+        const searchedTasks = {
+            "todo": [],
+            "in-progress": [],
+            "done": []
+        }
+        for(let taskList in tasks){
+            for(let task of tasks[`${taskList}`]){
+                if(task.includes(event.target.value)){
+                    searchedTasks[`${taskList}`].push(task);
+                }
+            }
+        }
+        //localStorage.setItem("searchedTasks", JSON.stringify(searchTasks));
+        document.getElementById("todo").textContent = "";
+        document.getElementById("in-progress").textContent = "";
+        document.getElementById("done").textContent = "";
+        appendTask(searchedTasks, ["todo", "in-progress", "done"]);
+    }
+    else {
+        generateTasks();
+    }
+}
+
 //generates all the tasks by appending their li element to the corresponding ul element.
 function generateTasks() {
     if (localStorage.length === 0) {
@@ -45,6 +71,9 @@ function generateTasks() {
             "done": []
         }
         localStorage.setItem("tasks", JSON.stringify(tasksObj))
+    }
+    if (localStorage.length === 2) {
+
     }
     const tasks = JSON.parse(localStorage.getItem("tasks"));
     //First, resets all the ul elements to prevent duplication
@@ -64,9 +93,13 @@ function appendTask(tasks, listsIdArr) {
                 const taskObj = { type: "li", attributes: { id: "task" + countForIds }, classes: ["task"] }
                 const el = createElementFromObject(taskObj);
                 el.textContent = tasks[listsIdArr[j]][i];
+                const editInput = document.createElement("input");
+                editInput.type = "hidden";
+                editInput.value = el.textContent;
                 const parent = document.getElementById(listsIdArr[j]);
 
                 parent.append(el);
+                parent.append(editInput);
                 countForIds++;
             }
         }
@@ -75,18 +108,21 @@ function appendTask(tasks, listsIdArr) {
 
 //Hover event, checks if alt + 1/2/3 are pressed, then moves the hovered task.
 function taskHovered(event) {
-    const taskType = event.target.parentElement.id; //The original list id, so we know where to move from.
-    if (event.target.tagName === "LI") { //Make sure the hovered element is li.
+    if (event.target.classList.contains("task")) { //Make sure the hovered element is li.
+        const taskType = event.target.parentElement.id; //The original list id, so we know where to move from.
         document.addEventListener("keydown", (e) => {
             if (e.altKey) {
                 if (e.key === "1") {
-                    moveTask(event.target, "todo", taskType);
+                    moveTask(event.target.textContent, "todo", taskType);
+                    e.stopPropagation();
                 }
                 if (e.key === "2") {
-                    moveTask(event.target, "in-progress", taskType);
+                    moveTask(event.target.textContent, "in-progress", taskType);
+                    e.stopPropagation();
                 }
                 if (e.key === "3") {
-                    moveTask(event.target, "done", taskType);
+                    moveTask(event.target.textContent, "done", taskType);
+                    e.stopPropagation();
                 }
             }
         })
@@ -97,17 +133,42 @@ function taskHovered(event) {
 function moveTask(task, moveTo, moveFrom) {
     console.log(`Moving ${task} from ${moveFrom} to ${moveTo}!`)
     const tasks = JSON.parse(localStorage.getItem("tasks"));
-    console.log(tasks[`${moveFrom}`]);
-    tasks[`${moveFrom}`].splice(tasks[`${moveFrom}`].findIndex(a => a === task.textContent), 1);
-    tasks[`${moveTo}`].push(task.textContent);
-    console.log(tasks)
+    tasks[`${moveFrom}`].splice(tasks[`${moveFrom}`].findIndex(a => a === task), 1);
+    tasks[`${moveTo}`].push(task);
     localStorage.setItem("tasks", JSON.stringify(tasks));
-    console.log(localStorage)
+    generateTasks();
+}
+
+function editTask(event) {
+    if (event.target.classList.contains("task")) {
+        const oldTask = event.target.textContent;
+        const taskType = event.target.parentElement.id;
+        event.target.style.display = "none";
+        const editInput = event.target.nextElementSibling;
+        editInput.type = "text";
+        editInput.addEventListener("blur", (e) => {
+            event.target.textContent = editInput.value;
+            event.target.style.display = "list-item";
+            editInput.type = "hidden";
+            updateTask(oldTask, editInput.value, taskType);
+        })
+    }
+}
+
+function updateTask(oldTask, newTask, taskListId) {
+    const tasks = JSON.parse(localStorage.getItem("tasks"));
+    const taskIndex = tasks[`${taskListId}`].findIndex(a => a === oldTask);
+    tasks[`${taskListId}`][taskIndex] = newTask;
+    localStorage.setItem("tasks", JSON.stringify(tasks));
     generateTasks();
 }
 
 function generatePage() {
-    document.body.addEventListener("mouseover", taskHovered)
+    document.addEventListener("keydown", newTaskMove);
+    document.addEventListener("mouseover", taskHovered);
+    document.addEventListener("dblclick", editTask);
+    document.getElementById("search").addEventListener("keyup", searchTasks)
     generateTasks();
 }
+//generateTasks();
 generatePage();
