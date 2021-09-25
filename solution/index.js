@@ -44,9 +44,9 @@ function searchTasks(event) {
             "in-progress": [],
             "done": []
         }
-        for(let taskList in tasks){
-            for(let task of tasks[`${taskList}`]){
-                if(task.includes(event.target.value)){
+        for (let taskList in tasks) {
+            for (let task of tasks[`${taskList}`]) {
+                if (task.includes(event.target.value)) {
                     searchedTasks[`${taskList}`].push(task);
                 }
             }
@@ -72,9 +72,6 @@ function generateTasks() {
         }
         localStorage.setItem("tasks", JSON.stringify(tasksObj))
     }
-    if (localStorage.length === 2) {
-
-    }
     const tasks = JSON.parse(localStorage.getItem("tasks"));
     //First, resets all the ul elements to prevent duplication
     document.getElementById("todo").textContent = "";
@@ -82,6 +79,7 @@ function generateTasks() {
     document.getElementById("done").textContent = "";
     //Goes through localStorage, creates the li elements, and appends it to the right ul.
     appendTask(tasks, ["todo", "in-progress", "done"]);
+    
 }
 
 //Appends all tasks as li elements to the ul lists.
@@ -107,25 +105,24 @@ function appendTask(tasks, listsIdArr) {
 }
 
 //Hover event, checks if alt + 1/2/3 are pressed, then moves the hovered task.
-function taskHovered(event) {
-    if (event.target.classList.contains("task")) { //Make sure the hovered element is li.
-        const taskType = event.target.parentElement.id; //The original list id, so we know where to move from.
-        document.addEventListener("keydown", (e) => {
-            if (e.altKey) {
-                if (e.key === "1") {
-                    moveTask(event.target.textContent, "todo", taskType);
-                    e.stopPropagation();
+function newTaskMove(event) {
+    if (event.altKey && [49, 50, 51].includes(event.keyCode)) {
+        const allHoverItems = Array.from(document.querySelectorAll(":hover"));
+        const tasks = Array.from(document.getElementsByClassName("task"));
+        tasks.forEach((tasks) => {
+            if (allHoverItems[allHoverItems.length - 1] === tasks) {
+                //console.log("hey");
+                if (event.keyCode === 49) {
+                    moveTask(tasks.textContent, "todo", tasks.parentElement.id)
                 }
-                if (e.key === "2") {
-                    moveTask(event.target.textContent, "in-progress", taskType);
-                    e.stopPropagation();
+                if (event.keyCode === 50) {
+                    moveTask(tasks.textContent, "in-progress", tasks.parentElement.id)
                 }
-                if (e.key === "3") {
-                    moveTask(event.target.textContent, "done", taskType);
-                    e.stopPropagation();
+                if (event.keyCode === 51) {
+                    moveTask(tasks.textContent, "done", tasks.parentElement.id)
                 }
             }
-        })
+        });
     }
 }
 
@@ -134,7 +131,7 @@ function moveTask(task, moveTo, moveFrom) {
     console.log(`Moving ${task} from ${moveFrom} to ${moveTo}!`)
     const tasks = JSON.parse(localStorage.getItem("tasks"));
     tasks[`${moveFrom}`].splice(tasks[`${moveFrom}`].findIndex(a => a === task), 1);
-    tasks[`${moveTo}`].push(task);
+    tasks[`${moveTo}`].unshift(task);
     localStorage.setItem("tasks", JSON.stringify(tasks));
     generateTasks();
 }
@@ -158,17 +155,22 @@ function editTask(event) {
 function updateTask(oldTask, newTask, taskListId) {
     const tasks = JSON.parse(localStorage.getItem("tasks"));
     const taskIndex = tasks[`${taskListId}`].findIndex(a => a === oldTask);
+    console.log(taskIndex)
+    tasks[`${taskListId}`].splice(taskIndex, 1, newTask);
     tasks[`${taskListId}`][taskIndex] = newTask;
     localStorage.setItem("tasks", JSON.stringify(tasks));
     generateTasks();
 }
 
+async function saveToApi(tasks){
+
+}
+
 function generatePage() {
     document.addEventListener("keydown", newTaskMove);
-    document.addEventListener("mouseover", taskHovered);
     document.addEventListener("dblclick", editTask);
     document.getElementById("search").addEventListener("keyup", searchTasks)
+    document.getElementById("saveBut").addEventListener("click", saveToApi)
     generateTasks();
 }
-//generateTasks();
 generatePage();
