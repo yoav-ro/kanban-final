@@ -91,6 +91,7 @@ function appendTask(tasks, listsIdArr) {
                 const taskObj = { type: "li", attributes: { id: "task" + countForIds }, classes: ["task"] }
                 const el = createElementFromObject(taskObj);
                 el.textContent = tasks[listsIdArr[j]][i];
+                el.draggable="true";
                 const parent = document.getElementById(listsIdArr[j]);
 
                 parent.append(el);
@@ -123,7 +124,6 @@ function newTaskMove(event) {
 
 //Moves task 'task' from 'moveFrom' list to 'moveTo' list.
 function moveTask(task, moveTo, moveFrom) {
-    console.log(`Moving ${task} from ${moveFrom} to ${moveTo}!`)
     const tasks = JSON.parse(localStorage.getItem("tasks"));
     tasks[`${moveFrom}`].splice(tasks[`${moveFrom}`].findIndex(a => a === task), 1);
     tasks[`${moveTo}`].unshift(task);
@@ -131,6 +131,7 @@ function moveTask(task, moveTo, moveFrom) {
     generateTasks();
 }
 
+//Edits the task after double click
 function editTask(event) {
     if (event.target.classList.contains("task")) {
         const task = event.target;
@@ -144,6 +145,7 @@ function editTask(event) {
     }
 }
 
+//Updates the task's text
 function updateTask(oldTask, newTask, taskListId) {
     const tasks = JSON.parse(localStorage.getItem("tasks"));
     const taskIndex = tasks[`${taskListId}`].findIndex(a => a === oldTask);
@@ -153,37 +155,75 @@ function updateTask(oldTask, newTask, taskListId) {
     generateTasks();
 }
 
+//Saves data to the api
 async function saveToApi() {
-    const tasks = JSON.parse(localStorage.getItem("tasks"));
-    const response = await fetch("https://json-bins.herokuapp.com/bin/614b27d04021ac0e6c080cfa", {
-        method: "put",
-        headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ tasks: { "todo": tasks["todo"], "in-progress": tasks["in-progress"], "done": tasks["done"] } }),
-    });
-    return await response.json();
-}
-
-async function loadFromApi() {
-    const response = await fetch("https://json-bins.herokuapp.com/bin/614b27d04021ac0e6c080cfa", {
-        method: "GET",
-    })
-    const result = await response.json();
-    if (response.ok) {
-        localStorage.setItem("tasks", JSON.stringify(result["tasks"]));
-        generateTasks();
+    try {
+        const tasks = JSON.parse(localStorage.getItem("tasks"));
+        const response = await fetch("https://json-bins.herokuapp.com/bin/614b27d04021ac0e6c080cfa", {
+            method: "PUT",
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ tasks: { "todo": tasks["todo"], "in-progress": tasks["in-progress"], "done": tasks["done"] } }),
+        });
+        const result = await response.json();
+        if (!response.ok) {
+            throw "error"
+        }
+        return result;
+    }
+    catch (err) {
+        alert("Error! Please try again! " + err.message)
     }
 }
 
+//Loading data from the api
+async function loadFromApi() {
+    try {
+        showLoading();
+        const response = await fetch("https://json-bins.herokuapp.com/bin/614b27d04021ac0e6c080cfa", {
+            method: "GET",
+        })
+        const result = await response.json();
+        if (response.ok) {
+            localStorage.setItem("tasks", JSON.stringify(result["tasks"])); //Sets the recieved data to the localStorage
+            generateTasks();
+        }
+        stopLoading();
+        if (!response.ok) {
+            throw "error"
+        }
+    }
+    catch (err) {
+        alert("Error! Please try again! " + err.message)
+    }
+}
+
+//Adds the loading div
+function showLoading()
+{
+    const loader = document.createElement("div");
+    loader.classList.add("loader");
+    loader.id = "loader"
+    document.body.append(loader)
+
+}
+
+ //Deletes the Showing the loading div
+function stopLoading()
+{
+    document.getElementById("loader").remove();
+}
 
 function generatePage() {
     document.addEventListener("keydown", newTaskMove);
     document.addEventListener("dblclick", editTask);
     document.getElementById("search").addEventListener("keyup", searchTasks)
-    document.getElementById("save-btn").addEventListener("click", saveToApi)
     document.getElementById("load-btn").addEventListener("click", loadFromApi)
+    document.getElementById("save-btn").addEventListener("click", saveToApi)
+    // document.addEventListener("mousedown", dragTask)
+
     generateTasks();
 }
 generatePage();
