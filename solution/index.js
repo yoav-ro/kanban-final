@@ -263,31 +263,29 @@ function dragTask(e) {
         document.addEventListener('drop', function (event) {
             event.preventDefault();
             let dropTarget = event.target
-            if (isDropabble(event.target)) { //Makes sure the drop target is droppable
+            if (isDropabble(event.target) && event.target !== dragging) { //Makes sure the drop target is droppable
                 if (dropTarget.style['border-bottom'] !== '') {
                     dropTarget.style['border-bottom'] = '';
                     if (event.target.classList.contains("task")) {
-                        //dropTarget.parentNode.insertBefore(dragging, event.target.nextSibling);
-                        console.log(dragging.textContent, event.target.id, originalList)
-                        moveTask(dragging.textContent, dropTarget.parentElement.id, originalList)
+                        dropTarget.parentNode.insertBefore(dragging, event.target.nextSibling);
+                        console.log(dragging.textContent, originalList, event.target.id)
                     }
                     else {
-                        //event.target.append(dragging);
+                        event.target.append(dragging);
                         console.log(dragging.textContent, event.target.id, originalList)
-                        moveTask(dragging.textContent, event.target.id, originalList);
                     }
                 }
                 else {
                     dropTarget.style['border-top'] = '';
                     if (event.target.classList.contains("task")) {
-                        //dropTarget.parentNode.insertBefore(dragging, event.target);
+                        dropTarget.parentNode.insertBefore(dragging, event.target);
                         console.log(dragging.textContent, event.target.id, originalList)
-                        moveTask(dragging.textContent, dropTarget.parentElement.id, originalList);
+
                     }
                     else {
-                        //event.target.append(dragging);
+                        event.target.append(dragging);
                         console.log(dragging.textContent, event.target.id, originalList)
-                        moveTask(dragging.textContent, event.target.id, originalList);
+
                     }
                 }
             }
