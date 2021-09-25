@@ -154,25 +154,26 @@ function updateTask(oldTask, newTask, taskListId) {
 }
 
 async function saveToApi() {
-    const tasks =JSON.parse(localStorage.getItem("tasks"));
-    const response = await fetch(`https://json-bins.herokuapp.com/bin/614b27d04021ac0e6c080cfa`, {
-        method: "PUT",
-        tasks: {
-            "todo": JSON.stringify(tasks["todo"]),
-            "in-progress": JSON.stringify(tasks["in-progress"]),
-            "done": JSON.stringify(tasks["done"]),
+    const tasks = JSON.parse(localStorage.getItem("tasks"));
+    const response = await fetch("https://json-bins.herokuapp.com/bin/614b27d04021ac0e6c080cfa", {
+        method: "put",
+        headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
         },
-    })
-    const result = await response.json();
-    return response;
+        body: JSON.stringify({ tasks: { "todo": tasks["todo"], "in-progress": tasks["in-progress"], "done": tasks["done"] } }),
+    });
+    return await response.json();
 }
+
 async function loadFromApi() {
     const response = await fetch("https://json-bins.herokuapp.com/bin/614b27d04021ac0e6c080cfa", {
         method: "GET",
     })
     const result = await response.json();
     if (response.ok) {
-        console.log(result)
+        localStorage.setItem("tasks", JSON.stringify(result["tasks"]));
+        generateTasks();
     }
 }
 
