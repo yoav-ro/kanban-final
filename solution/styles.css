@@ -13,6 +13,13 @@ body{
     border-style:dotted ;
 }
 
+.task-lists{
+  text-align: center;
+  width: 10em;
+  height: 7em;
+  border-style: solid;
+}
+
 .loader,
 .loader:before,
 .loader:after {

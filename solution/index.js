@@ -79,7 +79,6 @@ function generateTasks() {
     document.getElementById("done").textContent = "";
     //Goes through localStorage, creates the li elements, and appends it to the right ul.
     appendTask(tasks, ["todo", "in-progress", "done"]);
-
 }
 
 //Appends all tasks as li elements to the ul lists.
@@ -91,7 +90,7 @@ function appendTask(tasks, listsIdArr) {
                 const taskObj = { type: "li", attributes: { id: "task" + countForIds }, classes: ["task"] }
                 const el = createElementFromObject(taskObj);
                 el.textContent = tasks[listsIdArr[j]][i];
-                el.draggable="true";
+                el.draggable = "true";
                 const parent = document.getElementById(listsIdArr[j]);
 
                 parent.append(el);
@@ -149,10 +148,18 @@ function editTask(event) {
 function updateTask(oldTask, newTask, taskListId) {
     const tasks = JSON.parse(localStorage.getItem("tasks"));
     const taskIndex = tasks[`${taskListId}`].findIndex(a => a === oldTask);
-    tasks[`${taskListId}`].splice(taskIndex, 1, newTask);
-    tasks[`${taskListId}`][taskIndex] = newTask;
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-    generateTasks();
+    if (newTask !== "") {
+        tasks[`${taskListId}`].splice(taskIndex, 1, newTask);
+        //tasks[`${taskListId}`][taskIndex] = newTask;
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+        generateTasks();
+    }
+    else {
+        tasks[`${taskListId}`].splice(taskIndex, 1);
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+        generateTasks();
+    }
+
 }
 
 //Saves data to the api
@@ -201,8 +208,7 @@ async function loadFromApi() {
 }
 
 //Adds the loading div
-function showLoading()
-{
+function showLoading() {
     const loader = document.createElement("div");
     loader.classList.add("loader");
     loader.id = "loader"
@@ -210,19 +216,101 @@ function showLoading()
 
 }
 
- //Deletes the Showing the loading div
-function stopLoading()
-{
+//Deletes the Showing the loading div
+function stopLoading() {
     document.getElementById("loader").remove();
 }
 
+//The drag and drop functionallity
+function dragTask(e) {
+    //Make sure the clicked element is a task
+    if (e.target.classList.contains("task")) {
+        const originalList = e.target.parentElement.id;
+        let dragging;
+
+        //Starts dragging
+        document.addEventListener('dragstart', function (event) {
+            dragging = event.target;
+            event.dataTransfer.setData('text/plain', null);
+            event.dataTransfer.setDragImage(dragging, 0, 0);
+        });
+
+        //Markes the dropapple areas of the page if dragged upon
+        document.addEventListener('dragover', function (event) {
+            event.preventDefault();
+            let draggingOver = event.target;
+            if (isDropabble(draggingOver)) {
+                let bounding = draggingOver.getBoundingClientRect()
+                let offset = bounding.y + (bounding.height / 2);
+                if (event.clientY - offset > 0) {
+                    draggingOver.style['border-bottom'] = 'solid 4px blue';
+                    draggingOver.style['border-top'] = '';
+                } else {
+                    draggingOver.style['border-top'] = 'solid 4px blue';
+                    draggingOver.style['border-bottom'] = '';
+                }
+            }
+        });
+
+        //Removes the marking from draggable elements which were dragged on.
+        document.addEventListener('dragleave', function (event) {
+            let target = event.target;
+            target.style['border-bottom'] = '';
+            target.style['border-top'] = '';
+        });
+
+        //Dropping the task. After dropping, removes all marking and updates localStorage. 
+        document.addEventListener('drop', function (event) {
+            event.preventDefault();
+            let dropTarget = event.target
+            if (isDropabble(event.target)) { //Makes sure the drop target is droppable
+                if (dropTarget.style['border-bottom'] !== '') {
+                    dropTarget.style['border-bottom'] = '';
+                    if (event.target.classList.contains("task")) {
+                        //dropTarget.parentNode.insertBefore(dragging, event.target.nextSibling);
+                        console.log(dragging.textContent, event.target.id, originalList)
+                        moveTask(dragging.textContent, dropTarget.parentElement.id, originalList)
+                    }
+                    else {
+                        //event.target.append(dragging);
+                        console.log(dragging.textContent, event.target.id, originalList)
+                        moveTask(dragging.textContent, event.target.id, originalList);
+                    }
+                }
+                else {
+                    dropTarget.style['border-top'] = '';
+                    if (event.target.classList.contains("task")) {
+                        //dropTarget.parentNode.insertBefore(dragging, event.target);
+                        console.log(dragging.textContent, event.target.id, originalList)
+                        moveTask(dragging.textContent, dropTarget.parentElement.id, originalList);
+                    }
+                    else {
+                        //event.target.append(dragging);
+                        console.log(dragging.textContent, event.target.id, originalList)
+                        moveTask(dragging.textContent, event.target.id, originalList);
+                    }
+                }
+            }
+        });
+    }
+}
+
+//For the drag and drop function, returns true if the given element is a task list
+function isDropabble(dropTarget) {
+    if (dropTarget.closest(".task-lists")) {
+        return true;
+    }
+    return false;
+}
+
+//Calls generateTasks and adds event listeners
 function generatePage() {
     document.addEventListener("keydown", newTaskMove);
     document.addEventListener("dblclick", editTask);
     document.getElementById("search").addEventListener("keyup", searchTasks)
     document.getElementById("load-btn").addEventListener("click", loadFromApi)
     document.getElementById("save-btn").addEventListener("click", saveToApi)
-    // document.addEventListener("mousedown", dragTask)
+    document.addEventListener("mousedown", dragTask)
 
     generateTasks();
 }
