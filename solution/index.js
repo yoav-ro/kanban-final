@@ -1,4 +1,3 @@
-
 //Recieves the list id which the task should be created in, and creates the task.
 function addTask(listId) {
     const tasks = JSON.parse(localStorage.getItem("tasks"));
@@ -56,8 +55,7 @@ function searchTasks(event) {
         document.getElementById("in-progress").textContent = "";
         document.getElementById("done").textContent = "";
         appendTask(searchedTasks, ["todo", "in-progress", "done"]);
-    }
-    else {
+    } else {
         generateTasks();
     }
 }
@@ -153,8 +151,7 @@ function updateTask(oldTask, newTask, taskListId) {
         //tasks[`${taskListId}`][taskIndex] = newTask;
         localStorage.setItem("tasks", JSON.stringify(tasks));
         generateTasks();
-    }
-    else {
+    } else {
         tasks[`${taskListId}`].splice(taskIndex, 1);
         localStorage.setItem("tasks", JSON.stringify(tasks));
         generateTasks();
@@ -165,6 +162,7 @@ function updateTask(oldTask, newTask, taskListId) {
 //Saves data to the api
 async function saveToApi() {
     try {
+        showLoading();
         const tasks = JSON.parse(localStorage.getItem("tasks"));
         const response = await fetch("https://json-bins.herokuapp.com/bin/614b27d04021ac0e6c080cfa", {
             method: "PUT",
@@ -175,12 +173,12 @@ async function saveToApi() {
             body: JSON.stringify({ tasks: { "todo": tasks["todo"], "in-progress": tasks["in-progress"], "done": tasks["done"] } }),
         });
         const result = await response.json();
+        stopLoading();
         if (!response.ok) {
             throw "error"
         }
         return result;
-    }
-    catch (err) {
+    } catch (err) {
         alert("Error! Please try again! " + err.message)
     }
 }
@@ -201,8 +199,7 @@ async function loadFromApi() {
         if (!response.ok) {
             throw "error"
         }
-    }
-    catch (err) {
+    } catch (err) {
         alert("Error! Please try again! " + err.message)
     }
 }
@@ -229,14 +226,14 @@ function dragTask(e) {
         let dragging;
 
         //Starts dragging
-        document.addEventListener('dragstart', function (event) {
+        document.addEventListener('dragstart', function(event) {
             dragging = event.target;
             event.dataTransfer.setData('text/plain', null);
             event.dataTransfer.setDragImage(dragging, 0, 0);
         });
 
         //Markes the dropapple areas of the page if dragged upon
-        document.addEventListener('dragover', function (event) {
+        document.addEventListener('dragover', function(event) {
             event.preventDefault();
             let draggingOver = event.target;
             if (isDropabble(draggingOver)) {
@@ -253,14 +250,14 @@ function dragTask(e) {
         });
 
         //Removes the marking from draggable elements which were dragged on.
-        document.addEventListener('dragleave', function (event) {
+        document.addEventListener('dragleave', function(event) {
             let target = event.target;
             target.style['border-bottom'] = '';
             target.style['border-top'] = '';
         });
 
         //Dropping the task. After dropping, removes all marking and updates localStorage. 
-        document.addEventListener('drop', function (event) {
+        document.addEventListener('drop', function(event) {
             event.preventDefault();
             let dropTarget = event.target
             if (isDropabble(event.target) && event.target !== dragging) { //Makes sure the drop target is droppable
@@ -268,34 +265,44 @@ function dragTask(e) {
                     dropTarget.style['border-bottom'] = '';
                     if (event.target.classList.contains("task")) {
                         dropTarget.parentNode.insertBefore(dragging, event.target.nextSibling);
-                        console.log(dragging.textContent, originalList, event.target.id)
-                    }
-                    else {
+                    } else {
                         event.target.append(dragging);
-                        console.log(dragging.textContent, event.target.id, originalList)
                     }
-                }
-                else {
+                } else {
                     dropTarget.style['border-top'] = '';
                     if (event.target.classList.contains("task")) {
                         dropTarget.parentNode.insertBefore(dragging, event.target);
-                        console.log(dragging.textContent, event.target.id, originalList)
-
-                    }
-                    else {
+                    } else {
                         event.target.append(dragging);
-                        console.log(dragging.textContent, event.target.id, originalList)
-
                     }
                 }
+                saveElements();
+                event.stopImmediatePropagation()
             }
         });
     }
 }
 
+function saveElements() {
+    const tasksObj = {
+        "todo": [],
+        "in-progress": [],
+        "done": []
+    }
+    const lists = ["todo", "in-progress", "done"];
+    for (let i = 0; i < lists.length; i++) {
+        const list = document.getElementById(lists[i])
+        for (let j = 0; j < list.children.length; j++) {
+            tasksObj[`${lists[i]}`].push(list.children[j].textContent);
+        }
+    }
+    localStorage.setItem("tasks", JSON.stringify(tasksObj));
+    generateTasks();
+}
+
 //For the drag and drop function, returns true if the given element is a task list
 function isDropabble(dropTarget) {
-    if (dropTarget.closest(".task-lists")) {
+    if (dropTarget.closest(".in-progress-tasks") || dropTarget.closest(".to-do-tasks") || dropTarget.closest(".done-tasks")) {
         return true;
     }
     return false;
