@@ -2,7 +2,7 @@
 Kanban is a simple and easy to use application destined on making task and mission managment easier.
 
 ## Whats in the app?
-![alt text](Pictures\KanbanExample.png)
+![Overview](.\Pictures\KanbanExample.png)
 
 ### Top section
 The top section has basic information such as the headline and a clock.
@@ -41,4 +41,4 @@ LocalStorage- All the tasks and interaction are instantly saved to the browsers 
 The a bin API to store your tasks. Under the task sections, you will find 2 buttons, `Save` and `Load`. Pressing the save button will save the current state of the sections. After saving, press the load button to reload the saved state of the sections.
 
 ## GitHub Pages:
-You are able to use the site right now using GitHub page, follow the link: [a link](https://yoav-ro.github.io/kanban-final/solution/)
+You are able to use the site right now using GitHub page, follow the link: [GitHub Pages](https://yoav-ro.github.io/kanban-final/solution/)
