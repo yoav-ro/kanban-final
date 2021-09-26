@@ -78,7 +78,7 @@ function searchTasks(event) {
 
 //generates all the tasks by appending their li element to the corresponding ul element.
 function generateTasks() {
-    if (localStorage.length === 0) {
+    if (!localStorage.getItem("tasks")) {
         const tasksObj = {
             "todo": [],
             "in-progress": [],
