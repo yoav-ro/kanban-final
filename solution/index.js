@@ -1,13 +1,24 @@
 //Recieves the list id which the task should be created in, and creates the task.
 function addTask(listId) {
     const tasks = JSON.parse(localStorage.getItem("tasks"));
+    let inputEl;
     let text;
-    //Finds the task's text by finding the input element of the section and taking its value.
-    for (let child of document.getElementById(listId).parentElement.children) {
-        if (child.tagName === "INPUT") {
-            text = child.value;
-            child.value = "";
-        }
+    switch (listId) {
+        case "todo":
+            inputEl = document.getElementById("add-to-do-task")
+            text = inputEl.value
+            inputEl.value = "";
+            break;
+        case "in-progress":
+            inputEl = document.getElementById("add-in-progress-task")
+            text = inputEl.value
+            inputEl.value = "";
+            break;
+        case "done":
+            inputEl = document.getElementById("add-done-task")
+            text = inputEl.value
+            inputEl.value = "";
+            break;
     }
     if (listId === "todo") {
         tasks.todo.push(text);
@@ -208,9 +219,8 @@ async function loadFromApi() {
 function showLoading() {
     const loader = document.createElement("div");
     loader.classList.add("loader");
-    loader.id = "loader"
-    document.body.append(loader)
-
+    loader.id = "loader";
+    document.body.append(loader);
 }
 
 //Deletes the Showing the loading div
@@ -266,14 +276,14 @@ function dragTask(e) {
                     if (event.target.classList.contains("task")) {
                         dropTarget.parentNode.insertBefore(dragging, event.target.nextSibling);
                     } else {
-                        event.target.append(dragging);
+                        event.target.firstElementChild.append(dragging);
                     }
                 } else {
                     dropTarget.style['border-top'] = '';
                     if (event.target.classList.contains("task")) {
                         dropTarget.parentNode.insertBefore(dragging, event.target);
                     } else {
-                        event.target.append(dragging);
+                        event.target.firstElementChild.append(dragging);
                     }
                 }
                 saveElements();
@@ -283,6 +293,7 @@ function dragTask(e) {
     }
 }
 
+//Save tasks to the local stroge, as seen the the lists.
 function saveElements() {
     const tasksObj = {
         "todo": [],
@@ -302,7 +313,7 @@ function saveElements() {
 
 //For the drag and drop function, returns true if the given element is a task list
 function isDropabble(dropTarget) {
-    if (dropTarget.closest(".in-progress-tasks") || dropTarget.closest(".to-do-tasks") || dropTarget.closest(".done-tasks")) {
+    if (dropTarget.closest(".list-container")) {
         return true;
     }
     return false;
@@ -316,7 +327,33 @@ function generatePage() {
     document.getElementById("load-btn").addEventListener("click", loadFromApi)
     document.getElementById("save-btn").addEventListener("click", saveToApi)
     document.addEventListener("mousedown", dragTask)
+    startTime();
 
     generateTasks();
 }
+
+//Start setting the time using Date()
+function startTime() {
+    const today = new Date();
+    let h = today.getHours();
+    let m = today.getMinutes();
+    let s = today.getSeconds();
+    let day = today.getDate();
+    let month = today.getMonth() + 1;
+    let year = today.getFullYear();
+    m = checkTime(m);
+    s = checkTime(s);
+    let dateStr = day + "/" + month + "/" + year;
+    let timeStr = h + ":" + m + ":" + s;
+    let fullDateTime = timeStr + "\n" + dateStr
+    document.getElementById('clock').innerHTML = fullDateTime;
+    setTimeout(startTime, 1000);
+}
+
+//Addes 0 in front of numbers
+function checkTime(i) {
+    if (i < 10) { i = "0" + i }; // add zero in front of numbers < 10
+    return i;
+}
+
 generatePage();

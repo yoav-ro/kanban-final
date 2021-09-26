@@ -1,27 +1,124 @@
 .sections {
-    display: grid;
-    place-items: center;
-    float: left;
-    width: 20em;
-    height: 15em;
+    position: relative;
+    display: inline-block;
     border-style: solid;
+    width: 25em;
+    height: 40em;
+    align-content: center;
+    border-radius: 25px;
+    background-color: whitesmoke;
+}
+
+.list-container {
+    overflow: auto;
     text-align: center;
+    height: 32em;
 }
 
 body {
     text-align: center;
+    background: #2193b0;
+    /* fallback for old browsers */
+    background: -webkit-linear-gradient(to right, #6dd5ed, #2193b0);
+    /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to right, #6dd5ed, #2193b0);
+    /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
 }
 
 .task {
+    font-weight: bold;
     text-align: center;
-    border-style: dotted;
+    font-size: 20px;
+    border-style: ridge;
+    border-width: 7px;
+    border-radius: 20px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 10px;
 }
 
-.task-lists {
+.to-do-tasks,
+.in-progress-tasks,
+.done-tasks {
+    vertical-align: middle;
+    margin-left: 20px;
+    margin-right: 30px;
     text-align: center;
-    width: 10em;
+    list-style: none;
+}
+
+.uploadDiv {
+    position: absolute;
+    bottom: 3%;
+    left: 5%;
+}
+
+.title {
+    font-size: 50px;
+    font-weight: bolder;
+    font-family: sans-serif;
+}
+
+#topLine-elements {
+    margin-left: 30px;
+    top: 20px;
+}
+
+#clock {
+    color: white;
+    text-align: right;
+    display: inline;
+}
+
+.topLine {
+    background: #0F2027;
+    /* fallback for old browsers */
+    background: -webkit-linear-gradient(to right, #2C5364, #203A43, #0F2027);
+    /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to right, #2C5364, #203A43, #0F2027);
+    /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    text-align: left;
+    width: 100%;
     height: 7em;
-    border-style: solid;
+    color: white;
+    border-radius: 15px;
+}
+
+.ul-title {
+    font-family: sans-serif;
+}
+
+.add-task-btn {
+    box-shadow: 0px 10px 14px -7px #276873;
+    background: linear-gradient(to bottom, #599bb3 5%, #408c99 100%);
+    background-color: #599bb3;
+    border-radius: 8px;
+    display: inline-block;
+    cursor: pointer;
+    color: #ffffff;
+    font-family: Arial;
+    font-size: 17px;
+    font-weight: bold;
+    padding: 10px 25px;
+    text-decoration: none;
+    text-shadow: 0px 1px 0px #3d768a;
+}
+
+.add-task-input {
+    font-size: 17px;
+    padding: 10px 25px;
+    width: 9em;
+    border-radius: 8px;
+}
+
+.add-task-btn:hover {
+    background: linear-gradient(to bottom, #408c99 5%, #599bb3 100%);
+    background-color: #408c99;
+}
+
+.add-task-btn:active {
+    position: relative;
+    top: 1px;
 }
 
 .loader,

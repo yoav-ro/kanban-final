@@ -8,32 +8,57 @@
     <script src="./index.js" defer></script>
     <link rel="stylesheet" href="./styles.css" />
     <title id="page-title">Tasks manager</title>
-    <heading title="Kanban">Kanban</heading>
+
 </head>
 
 <body>
-    <input type="text" placeholder="Search Tasks" id="search"> <br> <br>
-    <section class="sections">
-        <h2>To do tasks</h2>
-        <ul class="to-do-tasks" id="todo">
-        </ul>
-        <input type="text" id="add-to-do-task">
-        <button id="submit-add-to-do" onclick="addTask('todo')">Add Task</button>
+    <!-- This section contains all the element in the top of the page -->
+    <section class="topLine">
+        <div id="topLine-elements">
+            <heading title="Kanban" class="title">Kanban</heading>
+            <div id="clock"></div> <br>
+            <input type="text" placeholder="Search Tasks" id="search">
+        </div><br> <br>
+        </div>
     </section>
+    <br> <br>
+
+    <!-- "To do" task section -->
     <section class="sections">
-        <h2>In progress tasks</h2>
-        <ul class="in-progress-tasks" id="in-progress">
-        </ul>
-        <input type="text" id="add-in-progress-task">
-        <button id="submit-add-in-progress" onclick="addTask('in-progress')">Add Task</button>
+        <h2 class="ul-title">To do tasks</h2>
+        <div class="list-container">
+            <ul class="to-do-tasks" id="todo">
+            </ul>
+        </div>
+        <div class="uploadDiv">
+            <input type="text" class="add-task-input" id="add-to-do-task">
+            <button id="submit-add-to-do" class="add-task-btn" onclick="addTask('todo')">Add Task</button>
+        </div>
     </section>
+    <!-- "In progress" task section -->
     <section class="sections">
-        <h2>Done tasks</h2>
-        <ul class="done-tasks" id="done">
-        </ul>
-        <input type="text" id="add-done-task">
-        <button id="submit-add-done" onclick="addTask('done')">Add Task</button>
+        <h2 class="ul-title">In progress tasks</h2>
+        <div class="list-container">
+            <ul class="in-progress-tasks" id="in-progress">
+            </ul>
+        </div>
+        <div class="uploadDiv">
+            <input type="text" class="add-task-input" id="add-in-progress-task">
+            <button id="submit-add-in-progress" class="add-task-btn" onclick="addTask('in-progress')">Add Task</button>
+        </div>
     </section>
+    <!-- "Done" class section -->
+    <section class="sections">
+        <h2 class="ul-title">Done tasks</h2>
+        <div class="list-container">
+            <ul class="done-tasks" id="done">
+            </ul>
+        </div>
+        <div class="uploadDiv">
+            <input type="text" class="add-task-input" id="add-done-task">
+            <button id="submit-add-done" class="add-task-btn" onclick="addTask('done')">Add Task</button>
+        </div>
+    </section> <br> <br>
 
     <button id="save-btn">Save</button>
     <button id="load-btn">Load</button>
