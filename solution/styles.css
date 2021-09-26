@@ -15,6 +15,17 @@
     height: 32em;
 }
 
+#search{
+    font-size: large;
+    width: 12em;
+    height: 2em;
+    border-radius: 20px;
+    text-align: center;
+    border-color: #0F2027;
+    border-width: 5px;
+    border-style: double;
+}
+
 body {
     text-align: center;
     background: #2193b0;
@@ -68,6 +79,14 @@ body {
     color: white;
     text-align: right;
     display: inline;
+}
+
+#save-btn, #load-btn{
+    font-size: 20px;
+    border-radius: 20px;
+    height: 2em;
+    width: 5em;
+    font-weight: bold;
 }
 
 .topLine {

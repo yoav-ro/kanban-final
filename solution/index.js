@@ -20,14 +20,19 @@ function addTask(listId) {
             inputEl.value = "";
             break;
     }
-    if (listId === "todo") {
-        tasks.todo.push(text);
+    if (text !== "") {
+        if (listId === "todo") {
+            tasks.todo.push(text);
+        }
+        if (listId === "in-progress") {
+            tasks['in-progress'].push(text);
+        }
+        if (listId === "done") {
+            tasks.done.push(text);
+        }
     }
-    if (listId === "in-progress") {
-        tasks['in-progress'].push(text);
-    }
-    if (listId === "done") {
-        tasks.done.push(text);
+    else {
+        alert("No task entered!")
     }
     localStorage.setItem("tasks", JSON.stringify(tasks));
     generateTasks();
@@ -236,14 +241,14 @@ function dragTask(e) {
         let dragging;
 
         //Starts dragging
-        document.addEventListener('dragstart', function(event) {
+        document.addEventListener('dragstart', function (event) {
             dragging = event.target;
             event.dataTransfer.setData('text/plain', null);
             event.dataTransfer.setDragImage(dragging, 0, 0);
         });
 
         //Markes the dropapple areas of the page if dragged upon
-        document.addEventListener('dragover', function(event) {
+        document.addEventListener('dragover', function (event) {
             event.preventDefault();
             let draggingOver = event.target;
             if (isDropabble(draggingOver)) {
@@ -260,14 +265,14 @@ function dragTask(e) {
         });
 
         //Removes the marking from draggable elements which were dragged on.
-        document.addEventListener('dragleave', function(event) {
+        document.addEventListener('dragleave', function (event) {
             let target = event.target;
             target.style['border-bottom'] = '';
             target.style['border-top'] = '';
         });
 
         //Dropping the task. After dropping, removes all marking and updates localStorage. 
-        document.addEventListener('drop', function(event) {
+        document.addEventListener('drop', function (event) {
             event.preventDefault();
             let dropTarget = event.target
             if (isDropabble(event.target) && event.target !== dragging) { //Makes sure the drop target is droppable
