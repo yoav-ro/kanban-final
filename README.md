@@ -2,7 +2,7 @@
 Kanban is a simple and easy to use application destined on making task and mission managment easier.
 
 ## Whats in the app?
-![Overview](.\Pictures\KanbanExample.png)
+![Overview](./Pictures/KanbanExample.png)
 
 ### Top section
 The top section has basic information such as the headline and a clock.
