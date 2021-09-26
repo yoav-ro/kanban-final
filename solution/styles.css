@@ -1,3 +1,4 @@
+/* Styling the task sections */
 .sections {
     position: relative;
     display: inline-block;
@@ -9,12 +10,14 @@
     background-color: whitesmoke;
 }
 
+/* Styling the divs containing each list */
 .list-container {
     overflow: auto;
     text-align: center;
     height: 32em;
 }
 
+/* Styling the search button */
 #search{
     font-size: large;
     width: 12em;
@@ -26,6 +29,7 @@
     border-style: double;
 }
 
+/* Styling the body of the page */
 body {
     text-align: center;
     background: #2193b0;
@@ -36,6 +40,7 @@ body {
     /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
 }
 
+/* Styling each task element */
 .task {
     font-weight: bold;
     text-align: center;
@@ -48,6 +53,7 @@ body {
     margin: 10px;
 }
 
+/* Styling the task lists */
 .to-do-tasks,
 .in-progress-tasks,
 .done-tasks {
@@ -58,29 +64,34 @@ body {
     list-style: none;
 }
 
+/* Stying the div containg the input and upload button of each section */
 .uploadDiv {
     position: absolute;
     bottom: 3%;
     left: 5%;
 }
 
+/* Styling the title of the page */
 .title {
     font-size: 50px;
     font-weight: bolder;
     font-family: sans-serif;
 }
 
+/* Stying a div containing the elements of the topside of the page */
 #topLine-elements {
     margin-left: 30px;
     top: 20px;
 }
 
+/* Styling the clock element */
 #clock {
     color: white;
     text-align: right;
     display: inline;
 }
 
+/* Styling the save and load buttons */
 #save-btn, #load-btn{
     font-size: 20px;
     border-radius: 20px;
@@ -89,6 +100,7 @@ body {
     font-weight: bold;
 }
 
+/*Styling the top section of the page*/
 .topLine {
     background: #0F2027;
     /* fallback for old browsers */
@@ -98,15 +110,17 @@ body {
     /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
     text-align: left;
     width: 100%;
-    height: 7em;
+    height: 5em;
     color: white;
     border-radius: 15px;
 }
 
+/* Styling each title of a list */
 .ul-title {
     font-family: sans-serif;
 }
 
+/* Styling the add task button of each list */
 .add-task-btn {
     box-shadow: 0px 10px 14px -7px #276873;
     background: linear-gradient(to bottom, #599bb3 5%, #408c99 100%);
@@ -123,6 +137,7 @@ body {
     text-shadow: 0px 1px 0px #3d768a;
 }
 
+/* Styling each input element of the sections */
 .add-task-input {
     font-size: 17px;
     padding: 10px 25px;
@@ -130,16 +145,17 @@ body {
     border-radius: 8px;
 }
 
+/* The add task buttons changes if hovered upon or clicked */
 .add-task-btn:hover {
     background: linear-gradient(to bottom, #408c99 5%, #599bb3 100%);
     background-color: #408c99;
 }
-
 .add-task-btn:active {
     position: relative;
     top: 1px;
 }
 
+/* Loader element style and animation */
 .loader,
 .loader:before,
 .loader:after {
@@ -151,7 +167,6 @@ body {
     -webkit-animation: load7 1.8s infinite ease-in-out;
     animation: load7 1.8s infinite ease-in-out;
 }
-
 .loader {
     font-size: 10px;
     margin: 80px auto;
@@ -163,24 +178,20 @@ body {
     -webkit-animation-delay: -0.16s;
     animation-delay: -0.16s;
 }
-
 .loader:before,
 .loader:after {
     content: '';
     position: absolute;
     top: 0;
 }
-
 .loader:before {
     left: -3.5em;
     -webkit-animation-delay: -0.32s;
     animation-delay: -0.32s;
 }
-
 .loader:after {
     left: 3.5em;
 }
-
 @-webkit-keyframes load7 {
     0%,
     80%,
@@ -191,7 +202,6 @@ body {
         box-shadow: 0 2.5em 0 0;
     }
 }
-
 @keyframes load7 {
     0%,
     80%,

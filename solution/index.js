@@ -3,7 +3,7 @@ function addTask(listId) {
     const tasks = JSON.parse(localStorage.getItem("tasks"));
     let inputEl;
     let text;
-    switch (listId) {
+    switch (listId) { //Sets the text from the correct input
         case "todo":
             inputEl = document.getElementById("add-to-do-task")
             text = inputEl.value
@@ -20,7 +20,7 @@ function addTask(listId) {
             inputEl.value = "";
             break;
     }
-    if (text !== "") {
+    if (text !== "") { //If text isnt empy, adds it to the correct list.
         if (listId === "todo") {
             tasks.todo.push(text);
         }
@@ -34,7 +34,7 @@ function addTask(listId) {
     else {
         alert("No task entered!")
     }
-    localStorage.setItem("tasks", JSON.stringify(tasks));
+    localStorage.setItem("tasks", JSON.stringify(tasks)); //Updates LocalStorage.
     generateTasks();
 }
 
@@ -59,9 +59,10 @@ function searchTasks(event) {
             "in-progress": [],
             "done": []
         }
+        const searchPhrase = event.target.value.toLowerCase();
         for (let taskList in tasks) {
             for (let task of tasks[`${taskList}`]) {
-                if (task.includes(event.target.value)) {
+                if (task.toLowerCase().includes(searchPhrase)) {
                     searchedTasks[`${taskList}`].push(task);
                 }
             }
@@ -70,7 +71,7 @@ function searchTasks(event) {
         document.getElementById("todo").textContent = "";
         document.getElementById("in-progress").textContent = "";
         document.getElementById("done").textContent = "";
-        appendTask(searchedTasks, ["todo", "in-progress", "done"]);
+        appendTask(searchedTasks);
     } else {
         generateTasks();
     }
@@ -96,7 +97,8 @@ function generateTasks() {
 }
 
 //Appends all tasks as li elements to the ul lists.
-function appendTask(tasks, listsIdArr) {
+function appendTask(tasks) {
+    const listsIdArr = ["todo", "in-progress", "done"];
     let countForIds = 1;
     for (let j = 0; j < listsIdArr.length; j++) {
         if (tasks[listsIdArr[j]].length > 0) {
@@ -146,7 +148,7 @@ function moveTask(task, moveTo, moveFrom) {
 
 //Edits the task after double click
 function editTask(event) {
-    if (event.target.classList.contains("task")) {
+    if (event.target.classList.contains("task")) { //Makes sure the double clicked event is a task
         const task = event.target;
         const oldText = task.textContent;
         const taskType = task.parentElement.id;
@@ -164,10 +166,9 @@ function updateTask(oldTask, newTask, taskListId) {
     const taskIndex = tasks[`${taskListId}`].findIndex(a => a === oldTask);
     if (newTask !== "") {
         tasks[`${taskListId}`].splice(taskIndex, 1, newTask);
-        //tasks[`${taskListId}`][taskIndex] = newTask;
         localStorage.setItem("tasks", JSON.stringify(tasks));
         generateTasks();
-    } else {
+    } else { //If the entered text is empy, deletes the task.
         tasks[`${taskListId}`].splice(taskIndex, 1);
         localStorage.setItem("tasks", JSON.stringify(tasks));
         generateTasks();
@@ -278,9 +279,9 @@ function dragTask(e) {
             if (isDropabble(event.target) && event.target !== dragging) { //Makes sure the drop target is droppable
                 if (dropTarget.style['border-bottom'] !== '') {
                     dropTarget.style['border-bottom'] = '';
-                    if (event.target.classList.contains("task")) {
+                    if (event.target.classList.contains("task")) { //Checks if the drop target is a task element
                         dropTarget.parentNode.insertBefore(dragging, event.target.nextSibling);
-                    } else {
+                    } else { //If not, the drop target is an empty list
                         event.target.firstElementChild.append(dragging);
                     }
                 } else {
@@ -352,7 +353,7 @@ function startTime() {
     let timeStr = h + ":" + m + ":" + s;
     let fullDateTime = timeStr + "\n" + dateStr
     document.getElementById('clock').innerHTML = fullDateTime;
-    setTimeout(startTime, 1000);
+    setTimeout(startTime, 1000); //Recalls the function after one second
 }
 
 //Addes 0 in front of numbers
