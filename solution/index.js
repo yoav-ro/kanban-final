@@ -176,50 +176,7 @@ function updateTask(oldTask, newTask, taskListId) {
 
 }
 
-//Saves data to the api
-async function saveToApi() {
-    try {
-        showLoading();
-        const tasks = JSON.parse(localStorage.getItem("tasks"));
-        const response = await fetch("https://json-bins.herokuapp.com/bin/614b27d04021ac0e6c080cfa", {
-            method: "PUT",
-            headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ tasks: { "todo": tasks["todo"], "in-progress": tasks["in-progress"], "done": tasks["done"] } }),
-        });
-        const result = await response.json();
-        stopLoading();
-        if (!response.ok) {
-            throw "error"
-        }
-        return result;
-    } catch (err) {
-        alert("Error! Please try again! " + err.message)
-    }
-}
 
-//Loading data from the api
-async function loadFromApi() {
-    try {
-        showLoading();
-        const response = await fetch("https://json-bins.herokuapp.com/bin/614b27d04021ac0e6c080cfa", {
-            method: "GET",
-        })
-        const result = await response.json();
-        if (response.ok) {
-            localStorage.setItem("tasks", JSON.stringify(result["tasks"])); //Sets the recieved data to the localStorage
-            generateTasks();
-        }
-        stopLoading();
-        if (!response.ok) {
-            throw "error"
-        }
-    } catch (err) {
-        alert("Error! Please try again! " + err.message)
-    }
-}
 
 //Adds the loading div
 function showLoading() {
@@ -362,4 +319,49 @@ function checkTime(i) {
     return i;
 }
 
+//Network
+//Saves data to the api
+async function saveToApi() {
+    showLoading();
+    const tasks = JSON.parse(localStorage.getItem("tasks"));
+    const response = await fetch("https://json-bins.herokuapp.com/bin/614b27d04021ac0e6c080cfa", {
+        method: "PUT",
+        headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ tasks: { "todo": tasks["todo"], "in-progress": tasks["in-progress"], "done": tasks["done"] } }),
+    });
+    return apiResult(response);
+}
+
+//Loading data from the api
+async function loadFromApi() {
+    showLoading();
+    const response = await fetch("https://json-bins.herokuapp.com/bin/614b27d04021ac0e6c080cfa", {
+        method: "GET",
+    })
+    const result = await apiResult(response);
+    console.log(result);
+    if (response.ok) {
+        localStorage.setItem("tasks", JSON.stringify(result["tasks"])); //Sets the recieved data to the localStorage
+        generateTasks();
+    }
+}
+
+//Checks the response of an api request and returns its response
+async function apiResult(response) {
+    try {
+        stopLoading();
+        const result = await response.json();
+        if (!response.ok) {
+            throw "error"
+        }
+        console.log(result);
+        return result;
+    }
+    catch (err) {
+        alert("Error! Please try again! " + err.message)
+    }
+}
 generatePage();
