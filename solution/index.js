@@ -1,8 +1,8 @@
+//Storage
 //Recieves the list id which the task should be created in, and creates the task.
 function addTask(listId) {
     const tasks = JSON.parse(localStorage.getItem("tasks"));
-    let inputEl;
-    let text;
+    let inputEl, text;
     switch (listId) { //Sets the text from the correct input
         case "todo":
             inputEl = document.getElementById("add-to-do-task")
@@ -20,6 +20,11 @@ function addTask(listId) {
             inputEl.value = "";
             break;
     }
+    pushTask(listId, text, tasks);
+    updatePage(tasks);
+}
+//Pushes the task to the right array
+function pushTask(listId, text, tasks) {
     if (text !== "") { //If text isnt empy, adds it to the correct list.
         if (listId === "todo") {
             tasks.todo.push(text);
@@ -30,14 +35,55 @@ function addTask(listId) {
         if (listId === "done") {
             tasks.done.push(text);
         }
-    }
-    else {
+    } else {
         alert("No task entered!")
     }
+}
+//Sets an empty tasks object to localStorage.
+function setEmptyLocalStorage() {
+    if (!localStorage.getItem("tasks")) {
+        const tasksObj = createEmptyTaskObj();
+        localStorage.setItem("tasks", JSON.stringify(tasksObj))
+    }
+}
+//Recieves a new task object, and sets the localStorage and page to it.
+function updatePage(tasks) {
     localStorage.setItem("tasks", JSON.stringify(tasks)); //Updates LocalStorage.
     generateTasks();
 }
+//Moves task 'task' from 'moveFrom' list to 'moveTo' list and updates localStorage.
+function moveTask(task, moveTo, moveFrom) {
+    const tasks = JSON.parse(localStorage.getItem("tasks"));
+    tasks[`${moveFrom}`].splice(tasks[`${moveFrom}`].findIndex(a => a === task), 1);
+    tasks[`${moveTo}`].unshift(task);
+    updatePage(tasks);
+}
+//Updates the task's text
+function updateTask(oldTask, newTask, taskListId) {
+    const tasks = JSON.parse(localStorage.getItem("tasks"));
+    const taskIndex = tasks[`${taskListId}`].findIndex(a => a === oldTask);
+    if (newTask !== "") {
+        tasks[`${taskListId}`].splice(taskIndex, 1, newTask);
+        updatePage(tasks);
+    } else { //If the entered text is empy, deletes the task.
+        tasks[`${taskListId}`].splice(taskIndex, 1);
+        updatePage(tasks);
+    }
+}
+//Save tasks to the local stroge, as seen the the lists.
+function saveElements() {
+    const tasksObj = createEmptyTaskObj();
+    const lists = ["todo", "in-progress", "done"];
+    for (let i = 0; i < lists.length; i++) {
+        const list = document.getElementById(lists[i])
+        for (let j = 0; j < list.children.length; j++) {
+            tasksObj[`${lists[i]}`].push(list.children[j].textContent);
+        }
+    }
+    updatePage(tasksObj);
+}
 
+//Dom
 //Recieves an object containing the element type, attributes, and classes, and makes an html element from it.
 function createElementFromObject(obj) {
     const el = document.createElement(`${obj.type}`);
@@ -49,53 +95,43 @@ function createElementFromObject(obj) {
     }
     return el;
 }
-
+//Emptys all the task lists
+function emptyLists() {
+    document.getElementById("todo").textContent = "";
+    document.getElementById("in-progress").textContent = "";
+    document.getElementById("done").textContent = "";
+}
 //Updated the sections to the only the tasks containing the string searched in the search box. Updated per keyStroke. Does not effect localStorage.
 function searchTasks(event) {
     const tasks = JSON.parse(localStorage.getItem("tasks"));
     if (event.target.value !== "") {
-        const searchedTasks = {
-            "todo": [],
-            "in-progress": [],
-            "done": []
-        }
-        const searchPhrase = event.target.value.toLowerCase();
-        for (let taskList in tasks) {
-            for (let task of tasks[`${taskList}`]) {
-                if (task.toLowerCase().includes(searchPhrase)) {
-                    searchedTasks[`${taskList}`].push(task);
-                }
-            }
-        }
-        //localStorage.setItem("searchedTasks", JSON.stringify(searchTasks));
-        document.getElementById("todo").textContent = "";
-        document.getElementById("in-progress").textContent = "";
-        document.getElementById("done").textContent = "";
+        const searchedTasks = pushSeachedTasks(tasks, event.target.value.toLowerCase());
+        emptyLists();
         appendTask(searchedTasks);
     } else {
         generateTasks();
     }
 }
-
+function pushSeachedTasks(tasks, searchPhrase) {
+    const searchedTasks = createEmptyTaskObj();
+    for (let taskList in tasks) {
+        for (let task of tasks[`${taskList}`]) {
+            if (task.toLowerCase().includes(searchPhrase)) {
+                searchedTasks[`${taskList}`].push(task);
+            }
+        }
+    }
+    return searchedTasks;
+}
 //generates all the tasks by appending their li element to the corresponding ul element.
 function generateTasks() {
-    if (!localStorage.getItem("tasks")) {
-        const tasksObj = {
-            "todo": [],
-            "in-progress": [],
-            "done": []
-        }
-        localStorage.setItem("tasks", JSON.stringify(tasksObj))
-    }
+    setEmptyLocalStorage();
     const tasks = JSON.parse(localStorage.getItem("tasks"));
     //First, resets all the ul elements to prevent duplication
-    document.getElementById("todo").textContent = "";
-    document.getElementById("in-progress").textContent = "";
-    document.getElementById("done").textContent = "";
+    emptyLists();
     //Goes through localStorage, creates the li elements, and appends it to the right ul.
     appendTask(tasks, ["todo", "in-progress", "done"]);
 }
-
 //Appends all tasks as li elements to the ul lists.
 function appendTask(tasks) {
     const listsIdArr = ["todo", "in-progress", "done"];
@@ -104,18 +140,19 @@ function appendTask(tasks) {
         if (tasks[listsIdArr[j]].length > 0) {
             for (let i = 0; i < tasks[listsIdArr[j]].length; i++) {
                 const taskObj = { type: "li", attributes: { id: "task" + countForIds }, classes: ["task"] }
-                const el = createElementFromObject(taskObj);
-                el.textContent = tasks[listsIdArr[j]][i];
-                el.draggable = "true";
-                const parent = document.getElementById(listsIdArr[j]);
-
-                parent.append(el);
+                setTaskEl(taskObj, tasks[listsIdArr[j]][i], listsIdArr[j])
                 countForIds++;
             }
         }
     }
 }
-
+function setTaskEl(taskObj, text, taskType) {
+    const el = createElementFromObject(taskObj);
+    el.textContent = text;
+    el.draggable = "true";
+    const parent = document.getElementById(taskType);
+    parent.append(el);
+}
 //Hover event, checks if alt + 1/2/3 are pressed, then moves the hovered task.
 function newTaskMove(event) {
     if (event.altKey && [49, 50, 51].includes(event.keyCode)) {
@@ -123,61 +160,38 @@ function newTaskMove(event) {
         const tasks = Array.from(document.getElementsByClassName("task"));
         tasks.forEach((tasks) => {
             if (allHoverItems[allHoverItems.length - 1] === tasks) {
-                if (event.keyCode === 49) {
-                    moveTask(tasks.textContent, "todo", tasks.parentElement.id)
-                }
-                if (event.keyCode === 50) {
-                    moveTask(tasks.textContent, "in-progress", tasks.parentElement.id)
-                }
-                if (event.keyCode === 51) {
-                    moveTask(tasks.textContent, "done", tasks.parentElement.id)
-                }
+                moveTaskByKey(tasks, event.keyCode)
             }
         });
     }
 }
-
-//Moves task 'task' from 'moveFrom' list to 'moveTo' list.
-function moveTask(task, moveTo, moveFrom) {
-    const tasks = JSON.parse(localStorage.getItem("tasks"));
-    tasks[`${moveFrom}`].splice(tasks[`${moveFrom}`].findIndex(a => a === task), 1);
-    tasks[`${moveTo}`].unshift(task);
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-    generateTasks();
+function moveTaskByKey(tasks, keyCode) {
+    if (keyCode === 49) {
+        moveTask(tasks.textContent, "todo", tasks.parentElement.id)
+    }
+    if (keyCode === 50) {
+        moveTask(tasks.textContent, "in-progress", tasks.parentElement.id)
+    }
+    if (keyCode === 51) {
+        moveTask(tasks.textContent, "done", tasks.parentElement.id)
+    }
 }
-
 //Edits the task after double click
 function editTask(event) {
     if (event.target.classList.contains("task")) { //Makes sure the double clicked event is a task
         const task = event.target;
         const oldText = task.textContent;
         const taskType = task.parentElement.id;
-        task.setAttribute("contenteditable", true)
-        task.addEventListener("blur", (e) => {
-            const newText = e.target.textContent;
-            updateTask(oldText, newText, taskType);
-        })
+        updateTaskContent(task, oldText, taskType);
     }
 }
-
-//Updates the task's text
-function updateTask(oldTask, newTask, taskListId) {
-    const tasks = JSON.parse(localStorage.getItem("tasks"));
-    const taskIndex = tasks[`${taskListId}`].findIndex(a => a === oldTask);
-    if (newTask !== "") {
-        tasks[`${taskListId}`].splice(taskIndex, 1, newTask);
-        localStorage.setItem("tasks", JSON.stringify(tasks));
-        generateTasks();
-    } else { //If the entered text is empy, deletes the task.
-        tasks[`${taskListId}`].splice(taskIndex, 1);
-        localStorage.setItem("tasks", JSON.stringify(tasks));
-        generateTasks();
-    }
-
+function updateTaskContent(task, oldText, taskType) {
+    task.setAttribute("contenteditable", true)
+    task.addEventListener("blur", (e) => {
+        const newText = e.target.textContent;
+        updateTask(oldText, newText, taskType);
+    })
 }
-
-
-
 //Adds the loading div
 function showLoading() {
     const loader = document.createElement("div");
@@ -185,17 +199,27 @@ function showLoading() {
     loader.id = "loader";
     document.body.append(loader);
 }
-
 //Deletes the Showing the loading div
 function stopLoading() {
     document.getElementById("loader").remove();
 }
-
+function markDroppable(draggingOver, event) {
+    if (isDropabble(draggingOver)) {
+        let bounding = draggingOver.getBoundingClientRect()
+        let offset = bounding.y + (bounding.height / 2);
+        if (event.clientY - offset > 0) {
+            draggingOver.style['border-bottom'] = 'solid 4px blue';
+            draggingOver.style['border-top'] = '';
+        } else {
+            draggingOver.style['border-top'] = 'solid 4px blue';
+            draggingOver.style['border-bottom'] = '';
+        }
+    }
+}
 //The drag and drop functionallity
 function dragTask(e) {
     //Make sure the clicked element is a task
     if (e.target.classList.contains("task")) {
-        const originalList = e.target.parentElement.id;
         let dragging;
 
         //Starts dragging
@@ -208,18 +232,7 @@ function dragTask(e) {
         //Markes the dropapple areas of the page if dragged upon
         document.addEventListener('dragover', function (event) {
             event.preventDefault();
-            let draggingOver = event.target;
-            if (isDropabble(draggingOver)) {
-                let bounding = draggingOver.getBoundingClientRect()
-                let offset = bounding.y + (bounding.height / 2);
-                if (event.clientY - offset > 0) {
-                    draggingOver.style['border-bottom'] = 'solid 4px blue';
-                    draggingOver.style['border-top'] = '';
-                } else {
-                    draggingOver.style['border-top'] = 'solid 4px blue';
-                    draggingOver.style['border-bottom'] = '';
-                }
-            }
+            markDroppable(event.target, event);
         });
 
         //Removes the marking from draggable elements which were dragged on.
@@ -232,48 +245,31 @@ function dragTask(e) {
         //Dropping the task. After dropping, removes all marking and updates localStorage. 
         document.addEventListener('drop', function (event) {
             event.preventDefault();
-            let dropTarget = event.target
-            if (isDropabble(event.target) && event.target !== dragging) { //Makes sure the drop target is droppable
-                if (dropTarget.style['border-bottom'] !== '') {
-                    dropTarget.style['border-bottom'] = '';
-                    if (event.target.classList.contains("task")) { //Checks if the drop target is a task element
-                        dropTarget.parentNode.insertBefore(dragging, event.target.nextSibling);
-                    } else { //If not, the drop target is an empty list
-                        event.target.firstElementChild.append(dragging);
-                    }
-                } else {
-                    dropTarget.style['border-top'] = '';
-                    if (event.target.classList.contains("task")) {
-                        dropTarget.parentNode.insertBefore(dragging, event.target);
-                    } else {
-                        event.target.firstElementChild.append(dragging);
-                    }
-                }
-                saveElements();
-                event.stopImmediatePropagation()
-            }
+            dropTask(event, event.target, dragging);
         });
     }
 }
-
-//Save tasks to the local stroge, as seen the the lists.
-function saveElements() {
-    const tasksObj = {
-        "todo": [],
-        "in-progress": [],
-        "done": []
-    }
-    const lists = ["todo", "in-progress", "done"];
-    for (let i = 0; i < lists.length; i++) {
-        const list = document.getElementById(lists[i])
-        for (let j = 0; j < list.children.length; j++) {
-            tasksObj[`${lists[i]}`].push(list.children[j].textContent);
+function dropTask(event, dropTarget, dragging) {
+    if (isDropabble(event.target) && event.target !== dragging) { //Makes sure the drop target is droppable
+        if (dropTarget.style['border-bottom'] !== '') {
+            dropTarget.style['border-bottom'] = '';
+            if (event.target.classList.contains("task")) { //Checks if the drop target is a task element
+                dropTarget.parentNode.insertBefore(dragging, event.target.nextSibling);
+            } else { //If not, the drop target is an empty list
+                event.target.firstElementChild.append(dragging);
+            }
+        } else {
+            dropTarget.style['border-top'] = '';
+            if (event.target.classList.contains("task")) {
+                dropTarget.parentNode.insertBefore(dragging, event.target);
+            } else {
+                event.target.firstElementChild.append(dragging);
+            }
         }
+        saveElements();
+        event.stopImmediatePropagation()
     }
-    localStorage.setItem("tasks", JSON.stringify(tasksObj));
-    generateTasks();
 }
-
 //For the drag and drop function, returns true if the given element is a task list
 function isDropabble(dropTarget) {
     if (dropTarget.closest(".list-container")) {
@@ -281,7 +277,6 @@ function isDropabble(dropTarget) {
     }
     return false;
 }
-
 //Calls generateTasks and adds event listeners
 function generatePage() {
     document.addEventListener("keydown", newTaskMove);
@@ -294,29 +289,14 @@ function generatePage() {
 
     generateTasks();
 }
-
 //Start setting the time using Date()
 function startTime() {
     const today = new Date();
-    let h = today.getHours();
-    let m = today.getMinutes();
-    let s = today.getSeconds();
-    let day = today.getDate();
-    let month = today.getMonth() + 1;
-    let year = today.getFullYear();
-    m = checkTime(m);
-    s = checkTime(s);
-    let dateStr = day + "/" + month + "/" + year;
-    let timeStr = h + ":" + m + ":" + s;
+    let dateStr = today.getDate() + "/" + (today.getMonth() + 1) + "/" + today.getFullYear();
+    let timeStr = today.getHours() + ":" + checkTime(today.getMinutes()) + ":" + checkTime(today.getSeconds());
     let fullDateTime = timeStr + "\n" + dateStr
     document.getElementById('clock').innerHTML = fullDateTime;
     setTimeout(startTime, 1000); //Recalls the function after one second
-}
-
-//Addes 0 in front of numbers
-function checkTime(i) {
-    if (i < 10) { i = "0" + i }; // add zero in front of numbers < 10
-    return i;
 }
 
 //Network
@@ -334,7 +314,6 @@ async function saveToApi() {
     });
     return apiResult(response);
 }
-
 //Loading data from the api
 async function loadFromApi() {
     showLoading();
@@ -348,7 +327,6 @@ async function loadFromApi() {
         generateTasks();
     }
 }
-
 //Checks the response of an api request and returns its response
 async function apiResult(response) {
     try {
@@ -364,4 +342,21 @@ async function apiResult(response) {
         alert("Error! Please try again! " + err.message)
     }
 }
+
+//Supporting Functions
+//Addes 0 in front of numbers
+function checkTime(i) {
+    if (i < 10) { i = "0" + i }; // add zero in front of numbers < 10
+    return i;
+}
+//Returns an empty tasks object
+function createEmptyTaskObj() {
+    const tasksObj = {
+        "todo": [],
+        "in-progress": [],
+        "done": []
+    }
+    return tasksObj;
+}
+
 generatePage();
